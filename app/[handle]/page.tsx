@@ -24,7 +24,7 @@ export default async function ProfilePage({ params }: PageProps<"/[handle]">) {
   const name = lists[0].doc.author.name ?? `@${handle}`
 
   return (
-    <main className="mx-auto max-w-[40rem] px-6 pt-20 pb-24 sm:pt-28">
+    <main id="content" className="mx-auto max-w-[40rem] px-6 pt-20 pb-24 sm:pt-28">
       <header className="mb-10">
         <h1 className="text-2xl font-medium tracking-tight">{name}</h1>
         <p className="mt-1 text-(--muted)">@{handle}</p>

@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[40rem] flex-col justify-center px-6 py-24">
+    <main id="content" className="mx-auto flex min-h-dvh max-w-[40rem] flex-col justify-center px-6 py-24">
       <h1 className="text-2xl font-medium tracking-tight">List</h1>
       <p className="mt-2 max-w-md text-(--muted)">
         A list is the atom. Make one, give it a link, pass it on.

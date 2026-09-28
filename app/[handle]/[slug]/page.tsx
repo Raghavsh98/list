@@ -40,7 +40,7 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
 
   return (
     <div className="page" style={spinVars(doc.spin)}>
-      <main className="mx-auto max-w-[40rem] px-6 pt-20 pb-24 sm:pt-28">
+      <main id="content" className="mx-auto max-w-[40rem] px-6 pt-20 pb-24 sm:pt-28">
         <List doc={doc} />
       </main>
       <footer className="mx-auto max-w-[40rem] px-6 pb-12 text-[0.8125rem] text-(--muted)">

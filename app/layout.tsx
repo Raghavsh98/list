@@ -35,7 +35,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#content">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   )
 }

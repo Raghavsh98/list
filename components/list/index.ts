@@ -1,5 +1,5 @@
 export { List } from "./list"
 export { ListItem } from "./list-item"
 export { ListCheck } from "./list-check"
-export { spinVars, DEFAULT_ACCENT, DEFAULT_FONT } from "./spin"
+export { spinVars } from "./spin"
 export type { ListDoc, Item, Spin, Mode, Font } from "@/core/types"

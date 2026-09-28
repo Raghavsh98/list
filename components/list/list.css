@@ -1,9 +1,9 @@
 /* The whole visual language of a list. Spins arrive as --list-accent and --list-font. */
 
 .list {
-  --list-accent: currentColor;
   --list-bg: light-dark(#fbfbfa, #111111);
   --list-fg: light-dark(#1a1a1a, #ececec);
+  --list-accent: var(--list-fg);
   --list-muted: light-dark(#6f6f6f, #9a9a9a);
   --list-accent-soft: color-mix(in oklab, var(--list-accent) 45%, transparent);
 
@@ -133,19 +133,21 @@
 
 /* Checkbox ------------------------------------------------------------ */
 
+/* The hit target is the whole 24px cell, not the 18px box drawn inside it. */
 .list-check {
   position: relative;
   display: block;
   align-self: start;
-  height: 1lh;
+  width: 1.5rem;
+  height: max(1lh, 1.5rem);
   cursor: pointer;
 }
 
 .list-check input {
   position: absolute;
   inset: 0;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 100%;
+  height: 100%;
   margin: 0;
   opacity: 0;
   cursor: pointer;
@@ -199,4 +201,23 @@
 
 .list-item:has(input:checked) .list-thing a {
   text-decoration-color: transparent;
+}
+
+@media (pointer: coarse) {
+  .list-item {
+    padding: 0.55rem 0;
+  }
+  .list-check input {
+    inset: -0.5rem -0.25rem;
+    width: auto;
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .list-checkbox,
+  .list-checkbox svg,
+  .list-thing a {
+    transition-duration: 0.01ms;
+  }
 }
