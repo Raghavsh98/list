@@ -1,19 +1,19 @@
-import type { NextRequest } from "next/server"
 import { toJSON } from "@/core/json"
 import { toMarkdown } from "@/core/markdown"
 import { store } from "@/lib/db"
 
 /**
  * The agent-readable twins, reached as /:handle/:slug.json and .md (see next.config.ts).
+ * The format rides in the path: a query string added by a rewrite is not visible to the handler.
  * Same document, no HTML, no JavaScript, CORS open because reading is public.
  */
-export async function GET(req: NextRequest, ctx: RouteContext<"/api/twin/[handle]/[slug]">) {
-  const { handle, slug } = await ctx.params
+export async function GET(req: Request, ctx: RouteContext<"/api/twin/[format]/[handle]/[slug]">) {
+  const { format, handle, slug } = await ctx.params
+  if (format !== "md" && format !== "json") return new Response("not found\n", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } })
   const list = await store.getList(handle, slug)
   if (!list) return new Response("not found\n", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } })
 
-  const format = req.nextUrl.searchParams.get("format") === "md" ? "md" : "json"
-  const origin = req.nextUrl.origin
+  const origin = new URL(req.url).origin
   const body =
     format === "md"
       ? toMarkdown(list.doc)
