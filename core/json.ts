@@ -9,6 +9,7 @@ function orderItem(item: Item): Item {
   if (item.url) out.url = item.url
   if (item.credit) out.credit = item.credit
   if (item.aside) out.aside = item.aside
+  if (item.image) out.image = item.image
   return out
 }
 

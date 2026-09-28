@@ -3,22 +3,24 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { List } from "@/components/list"
 import { spinVars } from "@/components/list/spin"
-import { getAllListPaths, getList } from "@/lib/lists"
-
-export async function generateStaticParams() {
-  return getAllListPaths()
-}
+import { SiteHeader } from "@/components/site/site-header"
+import { store } from "@/lib/db"
 
 export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">): Promise<Metadata> {
   const { handle, slug } = await params
-  const doc = await getList(handle, slug)
-  if (!doc) return {}
+  const list = await store.getList(handle, slug)
+  if (!list) return { title: "Not found" }
+  const { doc } = list
   const description = doc.subtitle ?? `A list by ${doc.author.name ?? handle}`
   const url = `/${handle}/${slug}`
   return {
     title: doc.title,
     description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      types: { "application/json": `${url}.json`, "text/markdown": `${url}.md` },
+    },
+    robots: list.visibility === "unlisted" ? { index: false, follow: true } : undefined,
     openGraph: {
       type: "article",
       url,
@@ -35,22 +37,32 @@ export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">
 
 export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">) {
   const { handle, slug } = await params
-  const doc = await getList(handle, slug)
-  if (!doc) notFound()
+  const list = await store.getList(handle, slug)
+  if (!list) notFound()
+  const { doc } = list
 
   return (
     <div className="page" style={spinVars(doc.spin)}>
-      <main id="content" className="mx-auto max-w-[40rem] px-6 pt-20 pb-24 sm:pt-28">
+      <SiteHeader />
+      <main id="content" className="mx-auto max-w-[52rem] px-6 pb-16">
         <List doc={doc} />
       </main>
-      <footer className="mx-auto max-w-[40rem] px-6 pb-12 text-[0.8125rem] text-(--muted)">
+      <footer className="mx-auto max-w-[52rem] px-6 pb-16 text-[0.8125rem] text-(--muted)">
         <Link href={`/${handle}`} className="hover:text-(--fg)">
           More lists by {doc.author.name ?? `@${handle}`}
         </Link>
         <span aria-hidden="true"> · </span>
-        <Link href="/" className="hover:text-(--fg)">
-          Made with List
+        <Link href={`/${handle}/${slug}/edit`} className="hover:text-(--fg)">
+          Edit
         </Link>
+        <span aria-hidden="true"> · </span>
+        <a href={`/${handle}/${slug}.md`} className="hover:text-(--fg)">
+          .md
+        </a>
+        <span aria-hidden="true"> · </span>
+        <a href={`/${handle}/${slug}.json`} className="hover:text-(--fg)">
+          .json
+        </a>
       </footer>
     </div>
   )

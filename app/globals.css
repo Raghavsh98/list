@@ -5,6 +5,7 @@
   --bg: light-dark(#fbfbfa, #111111);
   --fg: light-dark(#1a1a1a, #ececec);
   --muted: light-dark(#6f6f6f, #9a9a9a);
+  --faint: light-dark(#9b9b9b, #6f6f6f);
 }
 
 @theme inline {

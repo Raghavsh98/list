@@ -1,17 +1,45 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+import { ListCard } from "@/components/site/list-card"
+import { SiteHeader } from "@/components/site/site-header"
+import { store } from "@/lib/db"
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: { absolute: "List — a list is the atom" },
+  description: "Make a list, give it a link, pass it on. Public lists are free to read, always.",
+  alternates: { canonical: "/" },
+}
+
+export const revalidate = 60
+
+export default async function FeedPage() {
+  const lists = await store.feed()
+
   return (
-    <main id="content" className="mx-auto flex min-h-dvh max-w-[40rem] flex-col justify-center px-6 py-24">
-      <h1 className="text-2xl font-medium tracking-tight">List</h1>
-      <p className="mt-2 max-w-md text-(--muted)">
-        A list is the atom. Make one, give it a link, pass it on.
-      </p>
-      <p className="mt-8 text-[0.9375rem]">
-        <Link href="/raghav" className="underline underline-offset-3 decoration-black/30 hover:decoration-current dark:decoration-white/30">
-          See Raghav’s lists →
-        </Link>
-      </p>
-    </main>
+    <div className="page">
+      <SiteHeader />
+      <main id="content" className="mx-auto max-w-[52rem] px-6 pb-24">
+        <h1 className="sr-only">Recent lists</h1>
+        <p className="max-w-[34rem] text-[1.0625rem] text-balance">
+          A list is the atom. What you read, what you love, what you’d save from a fire — each one
+          gets a link.
+        </p>
+        {lists.length === 0 ? (
+          <p className="mt-10 text-(--muted)">
+            Nothing published yet.{" "}
+            <Link href="/new" className="underline underline-offset-4">
+              Make the first list
+            </Link>
+            .
+          </p>
+        ) : (
+          <div className="mt-8">
+            {lists.map((list) => (
+              <ListCard key={`${list.handle}/${list.slug}`} list={list} />
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
   )
 }
