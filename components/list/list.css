@@ -1,0 +1,207 @@
+/* The whole visual language of a list. Spins arrive as --list-accent and --list-font. */
+
+.list {
+  --list-accent: #1a1a1a;
+  --list-fg: light-dark(#1a1a1a, #ececec);
+  --list-muted: light-dark(#6f6f6f, #9a9a9a);
+  --list-rule: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
+  --list-accent-soft: color-mix(in oklab, var(--list-accent) 45%, transparent);
+
+  color: var(--list-fg);
+  font-family: var(--list-font, inherit);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  max-width: 40rem;
+  text-wrap: pretty;
+}
+
+.list-header {
+  margin-bottom: 2.25rem;
+}
+
+.list-mark {
+  font-size: 2.25rem;
+  line-height: 1;
+  margin-bottom: 1.25rem;
+}
+
+.list-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.list--mono .list-title {
+  font-size: 1.625rem;
+  letter-spacing: -0.01em;
+}
+
+.list-subtitle {
+  margin: 0.625rem 0 0;
+  color: var(--list-muted);
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.list-byline {
+  margin: 1.25rem 0 0;
+  color: var(--list-muted);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.list-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: list-item;
+  border-top: 1px solid var(--list-rule);
+}
+
+.list-item {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--list-rule);
+}
+
+.list-body {
+  min-width: 0;
+}
+
+.list-thing {
+  margin: 0;
+}
+
+.list-thing a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--list-accent-soft);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 120ms ease;
+}
+
+.list-thing a:hover {
+  text-decoration-color: var(--list-accent);
+}
+
+.list-favicon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 0.45em;
+  border-radius: 3px;
+  vertical-align: -0.125em;
+}
+
+.list-credit {
+  color: var(--list-muted);
+}
+
+.list-aside {
+  margin: 0.2rem 0 0;
+  color: var(--list-muted);
+  font-style: italic;
+}
+
+/* Markers ------------------------------------------------------------- */
+
+.list-marker {
+  position: relative;
+  align-self: start;
+  height: 1lh;
+}
+
+.list--plain .list-marker::before {
+  content: "";
+  position: absolute;
+  top: calc(0.5lh - 3px);
+  left: 0.125rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--list-accent);
+}
+
+.list--ranked .list-item {
+  counter-increment: list-item;
+}
+
+.list--ranked .list-marker::before {
+  content: counter(list-item);
+  color: var(--list-accent);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.875em;
+}
+
+/* Checkbox ------------------------------------------------------------ */
+
+.list-check {
+  position: relative;
+  display: block;
+  align-self: start;
+  height: 1lh;
+  cursor: pointer;
+}
+
+.list-check input {
+  position: absolute;
+  inset: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.list-checkbox {
+  position: absolute;
+  top: calc(0.5lh - 0.5625rem);
+  left: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 1.5px solid var(--list-accent-soft);
+  border-radius: 5px;
+  color: white;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.list-checkbox svg {
+  position: absolute;
+  inset: 2px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.list-check:hover .list-checkbox {
+  border-color: var(--list-accent);
+}
+
+.list-check input:checked + .list-checkbox {
+  background: var(--list-accent);
+  border-color: var(--list-accent);
+}
+
+.list-check input:checked + .list-checkbox svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.list-check input:focus-visible + .list-checkbox {
+  outline: 2px solid var(--list-accent);
+  outline-offset: 2px;
+}
+
+.list-item:has(input:checked) .list-thing {
+  color: var(--list-muted);
+}
+
+.list-item:has(input:checked) .list-thing a {
+  text-decoration-color: transparent;
+}
