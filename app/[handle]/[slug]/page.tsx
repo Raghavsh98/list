@@ -7,6 +7,8 @@ import { SiteHeader } from "@/components/site/site-header"
 import { getAuthor } from "@/lib/author"
 import { store } from "@/lib/db"
 
+const shortHost = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/^https?:\/\//, "")
+
 export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">): Promise<Metadata> {
   const { handle, slug } = await params
   const list = await store.getList(handle, slug)
@@ -51,6 +53,14 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
         <List doc={doc} />
       </main>
       <footer className="mx-auto max-w-[52rem] px-6 pb-16 text-[0.8125rem] text-(--muted)">
+        {list.short && (
+          <p className="mb-3">
+            Short link{" "}
+            <a href={`/l/${list.short}`} className="select-all text-(--fg)">
+              {shortHost}/l/{list.short}
+            </a>
+          </p>
+        )}
         <Link href={`/${handle}`} className="hover:text-(--fg)">
           More lists by {doc.author.name ?? `@${handle}`}
         </Link>

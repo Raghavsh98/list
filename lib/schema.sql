@@ -28,6 +28,9 @@ create table if not exists lists (
   primary key (handle, slug)
 );
 
+alter table lists add column if not exists short text;
+create unique index if not exists lists_short_idx on lists (short);
+
 create index if not exists lists_feed_idx on lists (updated_at desc) where visibility = 'public';
 create index if not exists lists_search_idx on lists using gin (search_text gin_trgm_ops);
 

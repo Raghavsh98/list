@@ -60,4 +60,14 @@ describe("memory store", () => {
     await store.remove("mira", "headphones")
     expect(await store.getList("mira", "headphones")).toBeNull()
   })
+
+  it("gives every list a short code once and finds it again", async () => {
+    const store = new MemoryStore()
+    const saved = await store.save(list("mira", "coffee", "Coffee", ["Beans"]))
+    expect(saved.short).toMatch(/^[23456789abcdefghjkmnpqrstuvwxyz]{6}$/)
+    const again = await store.save({ ...list("mira", "coffee", "Coffee, revised", ["Beans", "Water"]), short: undefined })
+    expect(again.short).toBe(saved.short)
+    expect((await store.getListByShort(saved.short!))?.doc.title).toBe("Coffee, revised")
+    expect(await store.getListByShort("zzzzzz")).toBeNull()
+  })
 })
