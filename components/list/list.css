@@ -83,6 +83,9 @@
 }
 
 .list-favicon {
+  /* Brand marks in monochrome: the list stays quiet, the item stays recognisable. */
+  filter: grayscale(1);
+  opacity: 0.75;
   display: inline-block;
   width: 14px;
   height: 14px;

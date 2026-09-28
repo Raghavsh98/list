@@ -32,7 +32,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           </>
         ) : (
           <>
-            <h1 className="text-[0.9375rem] text-(--muted)" aria-live="polite">
+            <h1 className="text-[0.9375rem] text-(--muted) [overflow-wrap:anywhere]" aria-live="polite">
               {hits.length === 0
                 ? `No lists match “${query}”`
                 : `${hits.length} ${hits.length === 1 ? "list" : "lists"} matching “${query}”`}

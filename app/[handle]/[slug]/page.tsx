@@ -4,7 +4,10 @@ import { notFound } from "next/navigation"
 import { List } from "@/components/list"
 import { spinVars } from "@/components/list/spin"
 import { SiteHeader } from "@/components/site/site-header"
+import { getAuthor } from "@/lib/author"
 import { store } from "@/lib/db"
+
+const shortHost = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/^https?:\/\//, "")
 
 export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">): Promise<Metadata> {
   const { handle, slug } = await params
@@ -40,6 +43,8 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
   const list = await store.getList(handle, slug)
   if (!list) notFound()
   const { doc } = list
+  const author = await getAuthor()
+  const mine = author?.handle === handle
 
   return (
     <div className="page" style={spinVars(doc.spin)}>
@@ -48,13 +53,25 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
         <List doc={doc} />
       </main>
       <footer className="mx-auto max-w-[52rem] px-6 pb-16 text-[0.8125rem] text-(--muted)">
+        {list.short && (
+          <p className="mb-3">
+            Short link{" "}
+            <a href={`/l/${list.short}`} className="select-all text-(--fg)">
+              {shortHost}/l/{list.short}
+            </a>
+          </p>
+        )}
         <Link href={`/${handle}`} className="hover:text-(--fg)">
           More lists by {doc.author.name ?? `@${handle}`}
         </Link>
-        <span aria-hidden="true"> · </span>
-        <Link href={`/${handle}/${slug}/edit`} className="hover:text-(--fg)">
-          Edit
-        </Link>
+        {mine && (
+          <>
+            <span aria-hidden="true"> · </span>
+            <Link href={`/${handle}/${slug}/edit`} className="hover:text-(--fg)">
+              Edit
+            </Link>
+          </>
+        )}
         <span aria-hidden="true"> · </span>
         <a href={`/${handle}/${slug}.md`} className="hover:text-(--fg)">
           .md
