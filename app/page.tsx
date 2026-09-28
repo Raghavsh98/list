@@ -10,8 +10,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 }
 
-export const revalidate = 60
-
 export default async function FeedPage() {
   const lists = await store.feed()
 
