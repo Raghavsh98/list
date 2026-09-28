@@ -1,16 +1,17 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { newId } from "@/core/ids"
-import { HANDLE_PATTERN, SLUG_PATTERN, slugify } from "@/core/slug"
+import { SLUG_PATTERN, slugify } from "@/core/slug"
 import { FORMAT_VERSION, type Visibility } from "@/core/types"
 import { parseListDoc } from "@/core/validate"
+import { getAuthor, getViewer, safeNext } from "./author"
 import { store } from "./db"
+import { handleError } from "./handles"
 
 export type PublishInput = {
   id?: string
-  handle: string
-  name?: string
   slug?: string
   title: string
   subtitle?: string
@@ -22,24 +23,21 @@ export type PublishInput = {
 
 export type PublishResult = { ok: true; url: string } | { ok: false; errors: string[] }
 
-const clean = (v?: string) => {
+const clean = (v?: string | null) => {
   const t = v?.trim()
   return t ? t : undefined
 }
 
 /**
- * The single write path. Everything the editor produces goes through core validation first,
- * so a malformed document can never reach storage and the editor only ever sees clean errors.
- *
- * TODO(auth): once Google sign-in lands, take the handle from the session instead of the payload
- * and reject writes to a handle the signed-in author does not own.
+ * The single write path. The author comes from the session, never from the payload, and
+ * everything the editor produces goes through core validation before it can reach storage.
  */
 export async function publishList(input: PublishInput): Promise<PublishResult> {
+  const author = await getAuthor()
+  if (!author) return { ok: false, errors: ["Sign in to publish."] }
+  const { handle } = author
+
   const errors: string[] = []
-
-  const handle = (clean(input.handle) ?? "").toLowerCase()
-  if (!HANDLE_PATTERN.test(handle)) errors.push("Handle must be lowercase letters, digits or hyphens.")
-
   const title = clean(input.title)
   if (!title) errors.push("A list needs a title.")
 
@@ -67,7 +65,7 @@ export async function publishList(input: PublishInput): Promise<PublishResult> {
     subtitle: clean(input.subtitle),
     mode: input.mode,
     items,
-    author: { handle, name: clean(input.name) },
+    author: { handle, name: author.name },
     createdAt: input.createdAt ?? now,
     updatedAt: now,
   })
@@ -77,7 +75,7 @@ export async function publishList(input: PublishInput): Promise<PublishResult> {
 
   const existing = await store.getList(handle, slug)
   if (existing && existing.doc.id !== parsed.doc.id) {
-    return { ok: false, errors: [`There is already a list at /${handle}/${slug}. Choose another link.`] }
+    return { ok: false, errors: [`You already have a list at /${handle}/${slug}. Choose another link.`] }
   }
 
   await store.save({ handle, slug, visibility: input.visibility, doc: parsed.doc })
@@ -88,8 +86,43 @@ export async function publishList(input: PublishInput): Promise<PublishResult> {
   return { ok: true, url: `/${handle}/${slug}` }
 }
 
-export async function deleteList(handle: string, slug: string): Promise<void> {
-  await store.remove(handle, slug)
+/** Native form post from the edit page; the author is the session, the slug is the field. */
+export async function deleteList(formData: FormData): Promise<void> {
+  const author = await getAuthor()
+  const slug = String(formData.get("slug") ?? "")
+  if (!author || !SLUG_PATTERN.test(slug)) redirect("/")
+  await store.remove(author.handle, slug)
   revalidatePath("/")
+  revalidatePath(`/${author.handle}`)
+  redirect(`/${author.handle}`)
+}
+
+/**
+ * Handles are chosen once. Unowned handles (the seeded ones) can be claimed by the first
+ * account to ask, which is how the first author takes their own name.
+ */
+export async function claimHandle(formData: FormData): Promise<void> {
+  const viewer = await getViewer()
+  const next = safeNext(String(formData.get("next") ?? ""), "/new")
+  if (!viewer) redirect(`/signin?next=${encodeURIComponent(next)}`)
+  if (viewer.profile) redirect(next)
+
+  const handle = String(formData.get("handle") ?? "").trim().toLowerCase()
+  const name = clean(String(formData.get("name") ?? "")) ?? viewer.name
+  const invite = String(formData.get("invite") ?? "").trim()
+
+  const back = (error: string) =>
+    `/claim?next=${encodeURIComponent(next)}&handle=${encodeURIComponent(handle)}&name=${encodeURIComponent(name)}&error=${error}`
+
+  const required = process.env.INVITE_CODE
+  if (required && invite !== required) redirect(back("invite"))
+  if (handleError(handle)) redirect(back("handle"))
+  if (name.length > 80) redirect(back("name"))
+
+  const taken = await store.getProfile(handle)
+  if (taken?.userId) redirect(back("taken"))
+
+  await store.saveProfile({ handle, name: name.slice(0, 80), bio: taken?.bio, link: taken?.link, userId: viewer.userId })
   revalidatePath(`/${handle}`)
+  redirect(next)
 }

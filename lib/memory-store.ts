@@ -30,6 +30,17 @@ export class MemoryStore implements Store {
     return this.profiles.find((p) => p.handle === handle) ?? null
   }
 
+  async getProfileByUser(userId: string) {
+    return this.profiles.find((p) => p.userId === userId) ?? null
+  }
+
+  async saveProfile(profile: Profile) {
+    const i = this.profiles.findIndex((p) => p.handle === profile.handle)
+    if (i === -1) this.profiles.push(profile)
+    else this.profiles[i] = { ...this.profiles[i], ...profile }
+    return profile
+  }
+
   async getList(handle: string, slug: string) {
     return this.lists.find((l) => l.handle === handle && l.slug === slug) ?? null
   }

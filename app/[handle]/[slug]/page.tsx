@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { List } from "@/components/list"
 import { spinVars } from "@/components/list/spin"
 import { SiteHeader } from "@/components/site/site-header"
+import { getAuthor } from "@/lib/author"
 import { store } from "@/lib/db"
 
 export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">): Promise<Metadata> {
@@ -40,6 +41,8 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
   const list = await store.getList(handle, slug)
   if (!list) notFound()
   const { doc } = list
+  const author = await getAuthor()
+  const mine = author?.handle === handle
 
   return (
     <div className="page" style={spinVars(doc.spin)}>
@@ -51,10 +54,14 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
         <Link href={`/${handle}`} className="hover:text-(--fg)">
           More lists by {doc.author.name ?? `@${handle}`}
         </Link>
-        <span aria-hidden="true"> · </span>
-        <Link href={`/${handle}/${slug}/edit`} className="hover:text-(--fg)">
-          Edit
-        </Link>
+        {mine && (
+          <>
+            <span aria-hidden="true"> · </span>
+            <Link href={`/${handle}/${slug}/edit`} className="hover:text-(--fg)">
+              Edit
+            </Link>
+          </>
+        )}
         <span aria-hidden="true"> · </span>
         <a href={`/${handle}/${slug}.md`} className="hover:text-(--fg)">
           .md

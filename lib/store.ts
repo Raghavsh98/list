@@ -6,6 +6,8 @@ export type Profile = {
   bio?: string
   /** Where the author sends people: one link, no link farm. */
   link?: string
+  /** The signed-in account that owns this handle. Absent for seeded authors. */
+  userId?: string
 }
 
 export type StoredList = {
@@ -26,6 +28,9 @@ export type SearchHit = StoredList & {
  */
 export interface Store {
   getProfile(handle: string): Promise<Profile | null>
+  /** The handle a signed-in account has claimed, if any. */
+  getProfileByUser(userId: string): Promise<Profile | null>
+  saveProfile(profile: Profile): Promise<Profile>
   getList(handle: string, slug: string): Promise<StoredList | null>
   /** Unlisted lists are included only for the author's own view. */
   listsByHandle(handle: string, includeUnlisted?: boolean): Promise<StoredList[]>

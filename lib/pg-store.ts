@@ -3,6 +3,21 @@ import type { ListDoc } from "@/core/types"
 import { rank, searchText, type Profile, type Store, type StoredList } from "./store"
 
 type Row = { handle: string; slug: string; visibility: string; doc: ListDoc }
+type ProfileRow = {
+  handle: string
+  name: string
+  bio: string | null
+  link: string | null
+  user_id: string | null
+}
+
+const toProfile = (r: ProfileRow): Profile => ({
+  handle: r.handle,
+  name: r.name,
+  bio: r.bio ?? undefined,
+  link: r.link ?? undefined,
+  userId: r.user_id ?? undefined,
+})
 
 const toList = (r: Row): StoredList => ({
   handle: r.handle,
@@ -25,11 +40,30 @@ export class PgStore implements Store {
 
   async getProfile(handle: string): Promise<Profile | null> {
     const rows = (await this.sql`
-      select handle, name, bio, link from profiles where handle = ${handle} limit 1
-    `) as { handle: string; name: string; bio: string | null; link: string | null }[]
-    const r = rows[0]
-    if (!r) return null
-    return { handle: r.handle, name: r.name, bio: r.bio ?? undefined, link: r.link ?? undefined }
+      select handle, name, bio, link, user_id from profiles where handle = ${handle} limit 1
+    `) as ProfileRow[]
+    return rows[0] ? toProfile(rows[0]) : null
+  }
+
+  async getProfileByUser(userId: string): Promise<Profile | null> {
+    const rows = (await this.sql`
+      select handle, name, bio, link, user_id from profiles where user_id = ${userId} limit 1
+    `) as ProfileRow[]
+    return rows[0] ? toProfile(rows[0]) : null
+  }
+
+  async saveProfile(profile: Profile): Promise<Profile> {
+    await this.sql`
+      insert into profiles (handle, name, bio, link, user_id)
+      values (${profile.handle}, ${profile.name}, ${profile.bio ?? null}, ${profile.link ?? null},
+              ${profile.userId ?? null})
+      on conflict (handle) do update set
+        name = excluded.name,
+        bio = excluded.bio,
+        link = excluded.link,
+        user_id = coalesce(excluded.user_id, profiles.user_id)
+    `
+    return profile
   }
 
   async getList(handle: string, slug: string) {

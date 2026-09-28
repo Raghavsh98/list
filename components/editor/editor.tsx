@@ -132,8 +132,6 @@ export function Editor({
     startTransition(async () => {
       const result = await publishList({
         id: draft.id,
-        handle: draft.handle,
-        name: draft.name,
         slug,
         title: draft.title,
         subtitle: draft.subtitle,
