@@ -19,9 +19,10 @@ export type Author = { userId: string; handle: string; name: string }
  * pages and actions that write, or that show an author their own controls.
  */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
+  const h = await headers()
   let session: Awaited<ReturnType<typeof auth.api.getSession>>
   try {
-    session = await auth.api.getSession({ headers: await headers() })
+    session = await auth.api.getSession({ headers: h })
   } catch (error) {
     // Reading must never fail because sign-in did; treat as signed out and say so in the log.
     console.error("[auth] getSession failed", error)
