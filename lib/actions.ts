@@ -9,6 +9,7 @@ import { parseListDoc } from "@/core/validate"
 import { getAuthor, getViewer, safeNext } from "./author"
 import { store } from "./db"
 import { handleError } from "./handles"
+import { PROFILE_LIMITS } from "./profile"
 import { WRITE_LIMITS, allow } from "./rate-limit"
 
 export type PublishInput = {
@@ -127,7 +128,45 @@ export async function claimHandle(formData: FormData): Promise<void> {
   const taken = await store.getProfile(handle)
   if (taken?.userId) redirect(back("taken"))
 
-  await store.saveProfile({ handle, name: name.slice(0, 80), bio: taken?.bio, link: taken?.link, userId: viewer.userId })
+  await store.saveProfile({ handle, name: name.slice(0, 80), bio: taken?.bio, links: taken?.links, userId: viewer.userId })
   revalidatePath(`/${handle}`)
   redirect(next)
+}
+
+const isHttpUrl = (v: string) => {
+  try {
+    const u = new URL(v)
+    return (u.protocol === "https:" || u.protocol === "http:") && v.length <= PROFILE_LIMITS.link
+  } catch {
+    return false
+  }
+}
+
+/** Name, one line about you, and up to two links. The handle is not on this form: it never changes. */
+export async function updateProfile(formData: FormData): Promise<void> {
+  const viewer = await getViewer()
+  if (!viewer) redirect("/signin?next=%2Fsettings")
+  if (!viewer.profile) redirect("/claim?next=%2Fsettings")
+  const { handle } = viewer.profile
+
+  const name = clean(String(formData.get("name") ?? ""))
+  const bio = clean(String(formData.get("bio") ?? "").replace(/\s+/g, " "))
+  const links = formData
+    .getAll("links")
+    .map((v) => clean(String(v)))
+    .filter((v): v is string => Boolean(v))
+    .map((v) => (/^https?:\/\//i.test(v) ? v : `https://${v}`))
+
+  const back = (error: string) => `/settings?error=${error}`
+  if (!allow(`publish:${viewer.userId}`, WRITE_LIMITS.publish.max, WRITE_LIMITS.publish.windowMs)) redirect(back("slow"))
+  if (!name || name.length > PROFILE_LIMITS.name) redirect(back("name"))
+  if (bio && bio.length > PROFILE_LIMITS.bio) redirect(back("bio"))
+  if (links.length > PROFILE_LIMITS.links || !links.every(isHttpUrl)) redirect(back("links"))
+
+  await store.saveProfile({ ...viewer.profile, name, bio, links: links.length ? links : undefined })
+  if (name !== viewer.profile.name) await store.renameAuthor(handle, name)
+
+  revalidatePath("/")
+  revalidatePath(`/${handle}`)
+  redirect(`/${handle}`)
 }

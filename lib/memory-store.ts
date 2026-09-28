@@ -6,7 +6,7 @@ import { shortCode } from "@/core/ids"
 import { rank, type Profile, type Store, type StoredList } from "./store"
 
 const PROFILES: Profile[] = [
-  { handle: "raghav", name: "Raghav", bio: "Product designer. Making a home for lists.", link: "https://read.cv" },
+  { handle: "raghav", name: "Raghav", bio: "Product designer. Making a home for lists." },
   ...seedProfiles,
 ]
 
@@ -33,6 +33,12 @@ export class MemoryStore implements Store {
 
   async getProfileByUser(userId: string) {
     return this.profiles.find((p) => p.userId === userId) ?? null
+  }
+
+  async renameAuthor(handle: string, name: string) {
+    this.lists = this.lists.map((l) =>
+      l.handle === handle ? { ...l, doc: { ...l.doc, author: { ...l.doc.author, name } } } : l,
+    )
   }
 
   async saveProfile(profile: Profile) {
