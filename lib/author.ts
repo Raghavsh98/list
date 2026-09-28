@@ -1,5 +1,5 @@
 import { cache } from "react"
-import { headers } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { auth } from "./auth"
 import { store } from "./db"
 import type { Profile } from "./store"
@@ -19,6 +19,7 @@ export type Author = { userId: string; handle: string; name: string }
  * pages and actions that write, or that show an author their own controls.
  */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
+  if (!(await hasSessionCookie())) return null
   const h = await headers()
   let session: Awaited<ReturnType<typeof auth.api.getSession>>
   try {
@@ -33,6 +34,12 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const profile = await store.getProfileByUser(user.id)
   return { userId: user.id, name: user.name, email: user.email, profile }
 })
+
+/** Signed-out readers cost nothing: no cookie, no database round trip. */
+async function hasSessionCookie(): Promise<boolean> {
+  const jar = await cookies()
+  return jar.getAll().some((c) => c.name.endsWith("better-auth.session_token") && c.value !== "")
+}
 
 /** A signed-in viewer who has claimed a handle. Every write requires one. */
 export async function getAuthor(): Promise<Author | null> {

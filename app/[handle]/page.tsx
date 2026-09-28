@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { SignOut } from "@/components/site/sign-in"
 import { SiteHeader } from "@/components/site/site-header"
+import { getViewer } from "@/lib/author"
 import { store } from "@/lib/db"
 
 export async function generateMetadata({ params }: PageProps<"/[handle]">): Promise<Metadata> {
@@ -20,7 +22,12 @@ export async function generateMetadata({ params }: PageProps<"/[handle]">): Prom
 
 export default async function ProfilePage({ params }: PageProps<"/[handle]">) {
   const { handle } = await params
-  const [profile, lists] = await Promise.all([store.getProfile(handle), store.listsByHandle(handle)])
+  const viewer = await getViewer()
+  const own = viewer?.profile?.handle === handle
+  const [profile, lists] = await Promise.all([
+    store.getProfile(handle),
+    store.listsByHandle(handle, own),
+  ])
   if (!profile) notFound()
 
   return (
@@ -45,11 +52,33 @@ export default async function ProfilePage({ params }: PageProps<"/[handle]">) {
           )}
         </header>
 
+        {own && (
+          <p className="mt-6 flex flex-wrap items-baseline gap-x-1 text-[0.8125rem] text-(--muted)">
+            <span>This is you</span>
+            <span aria-hidden="true"> · </span>
+            <Link href="/new" className="hover:text-(--fg)">
+              Make a list
+            </Link>
+            <span aria-hidden="true"> · </span>
+            <SignOut />
+          </p>
+        )}
+
         {lists.length === 0 ? (
-          <p className="mt-12 text-(--muted)">No lists yet.</p>
+          <p className="mt-12 text-(--muted)">
+            No lists yet.{own && (
+              <>
+                {" "}
+                <Link href="/new" className="underline underline-offset-4">
+                  Make the first one
+                </Link>
+                .
+              </>
+            )}
+          </p>
         ) : (
           <ul className="mt-10 m-0 list-none p-0">
-            {lists.map(({ slug, doc }) => (
+            {lists.map(({ slug, visibility, doc }) => (
               <li key={slug}>
                 <Link href={`/${handle}/${slug}`} className="group flex items-baseline gap-4 py-2.5">
                   <span className="grow">
@@ -58,6 +87,9 @@ export default async function ProfilePage({ params }: PageProps<"/[handle]">) {
                       <span className="block text-[0.9375rem] text-(--muted)">{doc.subtitle}</span>
                     )}
                   </span>
+                  {own && visibility === "unlisted" && (
+                    <span className="shrink-0 text-[0.8125rem] text-(--muted)">Unlisted</span>
+                  )}
                   <span className="shrink-0 text-[0.8125rem] text-(--muted) tabular-nums">
                     {doc.items.length}
                   </span>
