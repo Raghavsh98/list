@@ -5,7 +5,7 @@ import { faviconPath, hostnameOf } from "./favicon"
 import { fromJSON, toJSON } from "./json"
 import { fromMarkdown, toMarkdown } from "./markdown"
 import { slugify } from "./slug"
-import { isSingleGrapheme, parseListDoc } from "./validate"
+import { parseListDoc } from "./validate"
 
 const sample = defineList({
   id: "abc123",
@@ -13,7 +13,7 @@ const sample = defineList({
   subtitle: "A reading list on taste.",
   mode: "checkable",
   author: { handle: "raghav", name: "Raghav" },
-  spin: { color: "#b3261e", font: "serif", mark: "📚" },
+  spin: { color: "#b3261e", font: "serif" },
   createdAt: "2026-09-28T07:00:00.000Z",
   items: [
     { id: "i1", text: "Of the Standard of Taste", url: "https://davidhume.org/texts/empl1/st", credit: "David Hume, 1757" },
@@ -49,10 +49,10 @@ describe("parseListDoc", () => {
   it("allows empty items (drafts)", () => {
     expect(parseListDoc({ ...sample, items: [] }).ok).toBe(true)
   })
-  it("mark must be one grapheme", () => {
-    expect(isSingleGrapheme("📚")).toBe(true)
-    expect(isSingleGrapheme("👩‍💻")).toBe(true)
-    expect(isSingleGrapheme("ab")).toBe(false)
+  it("drops unknown spin fields", () => {
+    const r = parseListDoc({ ...sample, spin: { color: "#b3261e", font: "serif", mark: "📚" } })
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.doc.spin).toEqual({ color: "#b3261e", font: "serif" })
   })
 })
 

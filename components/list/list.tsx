@@ -43,11 +43,6 @@ export function List({ doc, faviconBase, byline, className }: Props) {
   return (
     <article className={cls} style={spinVars(doc.spin)} data-list-id={doc.id}>
       <header className="list-header">
-        {doc.spin?.mark && (
-          <div className="list-mark" aria-hidden="true">
-            {doc.spin.mark}
-          </div>
-        )}
         <h1 className="list-title">{doc.title}</h1>
         {doc.subtitle && <p className="list-subtitle">{doc.subtitle}</p>}
         {byline !== null && <p className="list-byline">{byline ?? defaultByline(doc)}</p>}

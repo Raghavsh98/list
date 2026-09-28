@@ -7,7 +7,6 @@ export const ranking = defineList({
   subtitle: "Argue with me.",
   mode: "ranked",
   author: { handle: "raghav", name: "Raghav" },
-  spin: { color: "#1d4ed8", font: "sans", mark: "🎞️" },
   createdAt: "2026-09-12T20:00:00.000Z",
   updatedAt: "2026-09-25T21:10:00.000Z",
   items: [

@@ -22,5 +22,6 @@ Craft rules:
 - Public list pages: zero JS for plain/ranked, one small island for checkable. No layout shift.
 - Resist adding fields to `Item`. Current fields: `id`, `text`, `url`, `credit`, `aside`.
 - Spins are CSS custom properties (`--list-accent`, `--list-font`), never inline component branches.
+- Monochrome by default: no spin means `--list-accent: currentColor`. No emoji, no rules or separators — spacing does that work.
 
 Commands: `pnpm dev`, `pnpm lint`, `pnpm test` (Vitest, `core/`), `pnpm build`.

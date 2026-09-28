@@ -26,8 +26,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* A list page wears its spin: a faint tint of the accent, nothing louder. */
 .page {
   min-height: 100dvh;
-  background: color-mix(in oklab, var(--list-accent, transparent) 4%, var(--bg));
+  background: var(--bg);
 }

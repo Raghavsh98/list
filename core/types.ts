@@ -27,8 +27,6 @@ export type Spin = {
   /** One accent colour, #rrggbb. */
   color: string
   font: Font
-  /** A single emoji. */
-  mark?: string
 }
 
 export type Author = {

@@ -1,10 +1,10 @@
 /* The whole visual language of a list. Spins arrive as --list-accent and --list-font. */
 
 .list {
-  --list-accent: #1a1a1a;
+  --list-accent: currentColor;
+  --list-bg: light-dark(#fbfbfa, #111111);
   --list-fg: light-dark(#1a1a1a, #ececec);
   --list-muted: light-dark(#6f6f6f, #9a9a9a);
-  --list-rule: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
   --list-accent-soft: color-mix(in oklab, var(--list-accent) 45%, transparent);
 
   color: var(--list-fg);
@@ -17,12 +17,6 @@
 
 .list-header {
   margin-bottom: 2.25rem;
-}
-
-.list-mark {
-  font-size: 2.25rem;
-  line-height: 1;
-  margin-bottom: 1.25rem;
 }
 
 .list-title {
@@ -58,15 +52,13 @@
   padding: 0;
   list-style: none;
   counter-reset: list-item;
-  border-top: 1px solid var(--list-rule);
 }
 
 .list-item {
   display: grid;
   grid-template-columns: 2rem 1fr;
   align-items: baseline;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--list-rule);
+  padding: 0.4rem 0;
 }
 
 .list-body {
@@ -167,7 +159,7 @@
   height: 1.125rem;
   border: 1.5px solid var(--list-accent-soft);
   border-radius: 5px;
-  color: white;
+  color: var(--list-bg);
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 

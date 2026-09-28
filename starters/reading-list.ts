@@ -10,7 +10,6 @@ export const readingList = defineList({
   subtitle: "The shelf I keep coming back to. Tick them off as you go; this browser remembers.",
   mode: "checkable",
   author: { handle: "raghav", name: "Raghav" },
-  spin: { color: "#b3261e", font: "serif", mark: "📚" },
   createdAt: "2026-09-20T09:00:00.000Z",
   updatedAt: "2026-09-27T18:30:00.000Z",
   items: [

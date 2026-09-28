@@ -7,7 +7,6 @@ export const bucketList = defineList({
   subtitle: "In no particular order, which is a lie.",
   mode: "plain",
   author: { handle: "raghav", name: "Raghav" },
-  spin: { color: "#15803d", font: "mono", mark: "🔥" },
   createdAt: "2026-09-01T08:00:00.000Z",
   updatedAt: "2026-09-01T08:00:00.000Z",
   items: [

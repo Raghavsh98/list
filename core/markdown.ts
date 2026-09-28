@@ -11,7 +11,6 @@ import { parseListDoc, type ParseResult } from "./validate"
  *   name: Raghav
  *   color: "#b3261e"
  *   font: serif
- *   mark: 📚
  *   created: 2026-09-28T07:00:00.000Z
  *   updated: 2026-09-28T07:00:00.000Z
  *   ---
@@ -53,7 +52,6 @@ export function toMarkdown(doc: ListDoc): string {
   if (doc.author.name) fm.push(["name", doc.author.name])
   if (doc.spin) {
     fm.push(["color", doc.spin.color], ["font", doc.spin.font])
-    if (doc.spin.mark) fm.push(["mark", doc.spin.mark])
   }
   fm.push(["created", doc.createdAt], ["updated", doc.updatedAt])
 
@@ -158,6 +156,6 @@ export function fromMarkdown(md: string, fallbacks: { newId: () => string; now?:
     createdAt: fm.created ?? now(),
     updatedAt: fm.updated ?? now(),
   }
-  if (fm.color || fm.font) raw.spin = { color: fm.color, font: fm.font, mark: fm.mark }
+  if (fm.color || fm.font) raw.spin = { color: fm.color, font: fm.font }
   return parseListDoc(raw)
 }

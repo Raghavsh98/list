@@ -7,12 +7,14 @@ const FONT_STACK: Record<Font, string> = {
   mono: "var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace)",
 }
 
-export const DEFAULT_SPIN: Spin = { color: "#1a1a1a", font: "sans" }
+/** No spin means the list wears the page's own ink. */
+export const DEFAULT_ACCENT = "currentColor"
+export const DEFAULT_FONT: Font = "sans"
 
 /** Spin → CSS custom properties. The stylesheet does the rest; nothing is computed at runtime. */
-export function spinVars(spin: Spin | undefined = DEFAULT_SPIN): CSSProperties {
+export function spinVars(spin?: Spin): CSSProperties {
   return {
-    "--list-accent": spin.color,
-    "--list-font": FONT_STACK[spin.font],
+    "--list-accent": spin?.color ?? DEFAULT_ACCENT,
+    "--list-font": FONT_STACK[spin?.font ?? DEFAULT_FONT],
   } as CSSProperties
 }

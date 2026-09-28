@@ -44,17 +44,6 @@ function isHttpUrl(v: string): boolean {
   }
 }
 
-let segmenter: Intl.Segmenter | undefined
-export function isSingleGrapheme(s: string): boolean {
-  if (s.length === 0) return false
-  if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
-    segmenter ??= new Intl.Segmenter(undefined, { granularity: "grapheme" })
-    const it = segmenter.segment(s)[Symbol.iterator]()
-    return !it.next().done && Boolean(it.next().done)
-  }
-  return [...s].length <= 2
-}
-
 function parseItem(v: unknown, path: string, errors: string[]): Item | undefined {
   if (!isRecord(v)) {
     errors.push(`${path} must be an object`)
@@ -87,12 +76,8 @@ function parseSpin(v: unknown, errors: string[]): Spin | undefined {
   if (color && !HEX_COLOR.test(color)) errors.push("spin.color must be #rrggbb")
   const font = str(v.font, "spin.font", 8, errors, true)
   if (font && !FONTS.includes(font as Font)) errors.push(`spin.font must be one of ${FONTS.join(", ")}`)
-  const mark = str(v.mark, "spin.mark", 16, errors, false)
-  if (mark && !isSingleGrapheme(mark)) errors.push("spin.mark must be a single emoji")
   if (!color || !font) return undefined
-  const spin: Spin = { color: color.toLowerCase(), font: font as Font }
-  if (mark) spin.mark = mark
-  return spin
+  return { color: color.toLowerCase(), font: font as Font }
 }
 
 /** Accepts anything, returns a clean ListDoc or a list of human-readable errors. */

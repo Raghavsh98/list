@@ -29,13 +29,10 @@ export default async function ProfilePage({ params }: PageProps<"/[handle]">) {
         <h1 className="text-2xl font-medium tracking-tight">{name}</h1>
         <p className="mt-1 text-(--muted)">@{handle}</p>
       </header>
-      <ul className="m-0 list-none border-t border-black/8 p-0 dark:border-white/10">
+      <ul className="m-0 list-none p-0">
         {lists.map(({ slug, doc }) => (
-          <li key={slug} className="border-b border-black/8 dark:border-white/10">
-            <Link href={`/${handle}/${slug}`} className="group flex items-baseline gap-3 py-3">
-              <span className="w-6 text-center" aria-hidden="true">
-                {doc.spin?.mark ?? "·"}
-              </span>
+          <li key={slug}>
+            <Link href={`/${handle}/${slug}`} className="group flex items-baseline gap-3 py-2">
               <span className="grow">
                 <span className="group-hover:underline underline-offset-3">{doc.title}</span>
                 {doc.subtitle && <span className="block text-[0.9375rem] text-(--muted)">{doc.subtitle}</span>}
