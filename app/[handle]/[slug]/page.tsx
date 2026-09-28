@@ -6,8 +6,8 @@ import { spinVars } from "@/components/list/spin"
 import { SiteHeader } from "@/components/site/site-header"
 import { getAuthor } from "@/lib/author"
 import { store } from "@/lib/db"
-
-const shortHost = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/^https?:\/\//, "")
+import { embedHtml } from "@/lib/embed"
+import { siteHost, siteUrl } from "@/lib/site"
 
 export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">): Promise<Metadata> {
   const { handle, slug } = await params
@@ -21,7 +21,11 @@ export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">
     description,
     alternates: {
       canonical: url,
-      types: { "application/json": `${url}.json`, "text/markdown": `${url}.md` },
+      types: {
+        "application/json": `${url}.json`,
+        "text/markdown": `${url}.md`,
+        "application/json+oembed": `/api/oembed?url=${encodeURIComponent(`${siteUrl}${url}`)}`,
+      },
     },
     robots: list.visibility === "unlisted" ? { index: false, follow: true } : undefined,
     openGraph: {
@@ -57,7 +61,7 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
           <p className="mb-3">
             Short link{" "}
             <a href={`/l/${list.short}`} className="select-all text-(--fg)">
-              {shortHost}/l/{list.short}
+              {siteHost}/l/{list.short}
             </a>
           </p>
         )}
@@ -80,6 +84,13 @@ export default async function ListPage({ params }: PageProps<"/[handle]/[slug]">
         <a href={`/${handle}/${slug}.json`} className="hover:text-(--fg)">
           .json
         </a>
+        <details className="mt-3">
+          <summary className="inline cursor-pointer hover:text-(--fg)">Embed</summary>
+          <p className="mt-2">Paste this where HTML goes. Pasting the plain link works too where oEmbed is understood.</p>
+          <pre className="mt-2 overflow-x-auto whitespace-pre-wrap [overflow-wrap:anywhere] font-mono text-[0.75rem] text-(--fg) select-all">
+            {embedHtml(handle, slug, doc)}
+          </pre>
+        </details>
       </footer>
     </div>
   )

@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless"
 import { shortCode } from "@/core/ids"
 import type { ListDoc } from "@/core/types"
-import { rank, searchText, type Profile, type Store, type StoredList } from "./store"
+import { rank, searchText, type ListPath, type Profile, type Store, type StoredList } from "./store"
 
 type Row = { handle: string; slug: string; visibility: string; short: string | null; doc: ListDoc }
 type ProfileRow = {
@@ -170,8 +170,9 @@ export class PgStore implements Store {
 
   async allPaths() {
     const rows = (await this.sql`
-      select handle, slug from lists where visibility = 'public'
-    `) as { handle: string; slug: string }[]
+      select handle, slug, doc->>'title' as title, doc->>'updatedAt' as "updatedAt"
+      from lists where visibility = 'public' order by updated_at desc
+    `) as ListPath[]
     return rows
   }
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono, Newsreader } from "next/font/google"
 import "./globals.css"
+import { siteUrl } from "@/lib/site"
 
 const serif = Newsreader({
   variable: "--font-serif",
@@ -21,8 +22,6 @@ const mono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
 })
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
