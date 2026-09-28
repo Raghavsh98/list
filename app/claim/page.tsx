@@ -13,6 +13,7 @@ const ERRORS: Record<string, string> = {
   taken: "Someone already has that handle. Choose another.",
   invite: "That invite code didn’t match.",
   name: "Keep your name under 80 characters.",
+  slow: "Too many tries. Come back in an hour.",
 }
 
 export default async function ClaimPage({ searchParams }: PageProps<"/claim">) {

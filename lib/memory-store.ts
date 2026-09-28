@@ -87,6 +87,9 @@ export class MemoryStore implements Store {
   }
 
   async allPaths() {
-    return this.lists.map(({ handle, slug }) => ({ handle, slug }))
+    return this.lists
+      .filter((l) => l.visibility === "public")
+      .sort((a, b) => b.doc.updatedAt.localeCompare(a.doc.updatedAt))
+      .map(({ handle, slug, doc }) => ({ handle, slug, title: doc.title, updatedAt: doc.updatedAt }))
   }
 }

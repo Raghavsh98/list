@@ -19,6 +19,8 @@ export type StoredList = {
   doc: ListDoc
 }
 
+export type ListPath = { handle: string; slug: string; title: string; updatedAt: string }
+
 export type SearchHit = StoredList & {
   /** Why this matched: the item line, if the hit came from one. */
   matchedItem?: string
@@ -42,7 +44,8 @@ export interface Store {
   search(query: string, limit?: number): Promise<SearchHit[]>
   save(list: StoredList): Promise<StoredList>
   remove(handle: string, slug: string): Promise<void>
-  allPaths(): Promise<{ handle: string; slug: string }[]>
+  /** Every public list, for the sitemap and llms.txt. */
+  allPaths(): Promise<ListPath[]>
 }
 
 export function norm(s: string): string {

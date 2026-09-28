@@ -9,6 +9,7 @@ import { parseListDoc } from "@/core/validate"
 import { getAuthor, getViewer, safeNext } from "./author"
 import { store } from "./db"
 import { handleError } from "./handles"
+import { WRITE_LIMITS, allow } from "./rate-limit"
 
 export type PublishInput = {
   id?: string
@@ -36,6 +37,9 @@ export async function publishList(input: PublishInput): Promise<PublishResult> {
   const author = await getAuthor()
   if (!author) return { ok: false, errors: ["Sign in to publish."] }
   const { handle } = author
+  if (!allow(`publish:${author.userId}`, WRITE_LIMITS.publish.max, WRITE_LIMITS.publish.windowMs)) {
+    return { ok: false, errors: ["That’s a lot of publishing. Take a breath and try again in a few minutes."] }
+  }
 
   const errors: string[] = []
   const title = clean(input.title)
@@ -114,6 +118,7 @@ export async function claimHandle(formData: FormData): Promise<void> {
   const back = (error: string) =>
     `/claim?next=${encodeURIComponent(next)}&handle=${encodeURIComponent(handle)}&name=${encodeURIComponent(name)}&error=${error}`
 
+  if (!allow(`claim:${viewer.userId}`, WRITE_LIMITS.claim.max, WRITE_LIMITS.claim.windowMs)) redirect(back("slow"))
   const required = process.env.INVITE_CODE
   if (required && invite !== required) redirect(back("invite"))
   if (handleError(handle)) redirect(back("handle"))
