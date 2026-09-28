@@ -21,6 +21,8 @@ export type Item = {
   credit?: string
   /** The author's voice. Italic. First-class. */
   aside?: string
+  /** One http(s) image. Optional, never required, never decorative chrome. */
+  image?: string
 }
 
 export type Spin = {
@@ -64,6 +66,7 @@ export const LIMITS = {
   itemText: 500,
   credit: 200,
   aside: 1000,
+  url: 2048,
   id: 64,
   handle: 32,
 } as const

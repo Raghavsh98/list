@@ -32,6 +32,16 @@ export function ListItem({ item, mode, listId, faviconBase }: Props) {
           {item.credit && <span className="list-credit"> — {item.credit}</span>}
         </p>
         {item.aside && <p className="list-aside">{item.aside}</p>}
+        {item.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="list-image"
+            src={item.image}
+            alt={item.text}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
       </div>
     </li>
   )

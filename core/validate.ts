@@ -52,17 +52,20 @@ function parseItem(v: unknown, path: string, errors: string[]): Item | undefined
   const id = str(v.id, `${path}.id`, LIMITS.id, errors, true)
   if (id && !ID_PATTERN.test(id)) errors.push(`${path}.id has invalid characters`)
   const text = str(v.text, `${path}.text`, LIMITS.itemText, errors, true)
-  const url = str(v.url, `${path}.url`, 2048, errors, false)
+  const url = str(v.url, `${path}.url`, LIMITS.url, errors, false)
   if (url && !isHttpUrl(url)) errors.push(`${path}.url must be an http(s) URL`)
   const credit = str(v.credit, `${path}.credit`, LIMITS.credit, errors, false)
   const aside = str(v.aside, `${path}.aside`, LIMITS.aside, errors, false)
-  const extra = Object.keys(v).filter((k) => !["id", "text", "url", "credit", "aside"].includes(k))
+  const image = str(v.image, `${path}.image`, LIMITS.url, errors, false)
+  if (image && !isHttpUrl(image)) errors.push(`${path}.image must be an http(s) URL`)
+  const extra = Object.keys(v).filter((k) => !["id", "text", "url", "credit", "aside", "image"].includes(k))
   if (extra.length) errors.push(`${path} has unknown fields: ${extra.join(", ")}`)
   if (!id || !text) return undefined
   const item: Item = { id, text }
   if (url) item.url = url
   if (credit) item.credit = credit
   if (aside) item.aside = aside
+  if (image) item.image = image
   return item
 }
 

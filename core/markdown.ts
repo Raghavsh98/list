@@ -19,9 +19,10 @@ import { parseListDoc, type ParseResult } from "./validate"
  *
  *   Subtitle paragraph.
  *
- *   - [ ] [The thing](https://…) — Credit · *Aside*
+ *   - [ ] [The thing](https://…) — Credit · *Aside* ![](https://…/photo.jpg)
  *
- * Item line = marker, then thing (linked or plain), then optional ` — credit`, then optional ` · *aside*`.
+ * Item line = marker, then thing (linked or plain), then optional ` — credit`,
+ * then optional ` · *aside*`, then optional ` ![](image)`.
  * Known limitation: text containing ` — ` or ` · ` or `*` is not escaped in v1.
  */
 
@@ -36,6 +37,7 @@ function itemLine(item: Item, mode: Mode, index: number): string {
   line += item.url ? `[${item.text}](${item.url})` : item.text
   if (item.credit) line += ` — ${item.credit}`
   if (item.aside) line += ` · *${item.aside}*`
+  if (item.image) line += ` ![](${item.image})`
   return line
 }
 
@@ -68,6 +70,7 @@ const FRONT_MATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 const ITEM_LINE = /^(?:- \[[ xX]\] |- |\d+\. )(.*)$/
 const LINK = /^\[([^\]]*)\]\(([^)\s]+)\)(.*)$/
 const ASIDE = /\s+·\s+\*(.+)\*\s*$/
+const IMAGE = /\s*!\[[^\]]*\]\(([^)\s]+)\)\s*$/
 
 function parseFrontMatter(block: string): Record<string, string> {
   const out: Record<string, string> = {}
@@ -90,6 +93,12 @@ function parseFrontMatter(block: string): Record<string, string> {
 function parseItemLine(body: string, fallbackId: string): Item {
   let rest = body.trim()
   const item: Item = { id: fallbackId, text: "" }
+
+  const image = IMAGE.exec(rest)
+  if (image) {
+    item.image = image[1]
+    rest = rest.slice(0, image.index)
+  }
 
   const aside = ASIDE.exec(rest)
   if (aside) {

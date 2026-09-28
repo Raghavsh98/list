@@ -34,13 +34,13 @@ describe("parseListDoc", () => {
       ...sample,
       spin: { color: "red", font: "comic" },
       items: [
-        { id: "x", text: "a", image: "nope" },
+        { id: "x", text: "a", tags: ["nope"] },
         { id: "x", text: "b", url: "javascript:alert(1)" },
       ],
     })
     expect(r.ok).toBe(false)
     if (!r.ok) {
-      expect(r.errors.join("\n")).toMatch(/unknown fields: image/)
+      expect(r.errors.join("\n")).toMatch(/unknown fields: tags/)
       expect(r.errors.join("\n")).toMatch(/http\(s\) URL/)
       expect(r.errors.join("\n")).toMatch(/#rrggbb/)
       expect(r.errors.join("\n")).toMatch(/duplicate/)
@@ -48,6 +48,14 @@ describe("parseListDoc", () => {
   })
   it("allows empty items (drafts)", () => {
     expect(parseListDoc({ ...sample, items: [] }).ok).toBe(true)
+  })
+  it("accepts an item image and rejects a non-http one", () => {
+    const withImage = { ...sample, items: [{ id: "i1", text: "a", image: "https://example.com/a.jpg" }] }
+    const ok = parseListDoc(withImage)
+    expect(ok.ok).toBe(true)
+    if (ok.ok) expect(ok.doc.items[0].image).toBe("https://example.com/a.jpg")
+    const bad = parseListDoc({ ...sample, items: [{ id: "i1", text: "a", image: "data:image/png;base64,AAA" }] })
+    expect(bad.ok).toBe(false)
   })
   it("drops unknown spin fields", () => {
     const r = parseListDoc({ ...sample, spin: { color: "#b3261e", font: "serif", mark: "📚" } })
@@ -84,9 +92,15 @@ describe("markdown twin", () => {
       const { items, ...rest } = back.doc
       const { items: origItems, ...origRest } = sample
       expect(rest).toEqual(origRest)
-      const strip = (i: Item) => ({ text: i.text, url: i.url, credit: i.credit, aside: i.aside })
+      const strip = (i: Item) => ({ text: i.text, url: i.url, credit: i.credit, aside: i.aside, image: i.image })
       expect(items.map(strip)).toEqual(origItems.map(strip))
     }
+  })
+  it("carries an image through the round trip", () => {
+    const doc = { ...sample, items: [{ id: "i1", text: "A photo", aside: "Taken at dusk.", image: "https://example.com/a.jpg" }] }
+    const back = fromMarkdown(toMarkdown(doc), { newId: () => "f0" })
+    expect(back.ok).toBe(true)
+    if (back.ok) expect(back.doc.items[0]).toEqual({ id: "f0", text: "A photo", aside: "Taken at dusk.", image: "https://example.com/a.jpg" })
   })
   it("ranked uses numbers and infers mode", () => {
     const md = toMarkdown({ ...sample, mode: "ranked" })

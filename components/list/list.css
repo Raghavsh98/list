@@ -101,6 +101,15 @@
   font-style: italic;
 }
 
+/* An image is content, not chrome: capped so it never dominates the line it belongs to. */
+.list-image {
+  display: block;
+  margin-top: 0.5rem;
+  max-width: min(100%, 22rem);
+  height: auto;
+  border-radius: 2px;
+}
+
 /* Markers ------------------------------------------------------------- */
 
 .list-marker {
