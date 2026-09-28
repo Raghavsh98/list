@@ -7,7 +7,7 @@ import type { Profile, StoredList } from "./store"
  */
 export const seedProfiles: Profile[] = [
   { handle: "mira", name: "Mira Chandra", bio: "Sound engineer. Keeps lists instead of a diary." },
-  { handle: "tomas", name: "Tomás Ruiz", bio: "Cooks, walks, reads late.", link: "https://example.com" },
+  { handle: "tomas", name: "Tomás Ruiz", bio: "Cooks, walks, reads late.", links: ["https://example.com"] },
 ]
 
 export const seedLists: StoredList[] = [

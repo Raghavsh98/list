@@ -23,9 +23,9 @@ async function main() {
 
   for (const p of seedData.profiles) {
     await sql.query(
-      `insert into profiles (handle, name, bio, link) values ($1, $2, $3, $4)
-       on conflict (handle) do update set name = excluded.name, bio = excluded.bio, link = excluded.link`,
-      [p.handle, p.name, p.bio ?? null, p.link ?? null],
+      `insert into profiles (handle, name, bio, links) values ($1, $2, $3, $4)
+       on conflict (handle) do update set name = excluded.name, bio = excluded.bio, links = excluded.links`,
+      [p.handle, p.name, p.bio ?? null, p.links ?? []],
     )
   }
 

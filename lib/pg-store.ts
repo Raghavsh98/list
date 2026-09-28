@@ -8,7 +8,7 @@ type ProfileRow = {
   handle: string
   name: string
   bio: string | null
-  link: string | null
+  links: string[] | null
   user_id: string | null
 }
 
@@ -16,7 +16,7 @@ const toProfile = (r: ProfileRow): Profile => ({
   handle: r.handle,
   name: r.name,
   bio: r.bio ?? undefined,
-  link: r.link ?? undefined,
+  links: r.links?.length ? r.links : undefined,
   userId: r.user_id ?? undefined,
 })
 
@@ -45,30 +45,37 @@ export class PgStore implements Store {
 
   async getProfile(handle: string): Promise<Profile | null> {
     const rows = (await this.sql`
-      select handle, name, bio, link, user_id from profiles where handle = ${handle} limit 1
+      select handle, name, bio, links, user_id from profiles where handle = ${handle} limit 1
     `) as ProfileRow[]
     return rows[0] ? toProfile(rows[0]) : null
   }
 
   async getProfileByUser(userId: string): Promise<Profile | null> {
     const rows = (await this.sql`
-      select handle, name, bio, link, user_id from profiles where user_id = ${userId} limit 1
+      select handle, name, bio, links, user_id from profiles where user_id = ${userId} limit 1
     `) as ProfileRow[]
     return rows[0] ? toProfile(rows[0]) : null
   }
 
   async saveProfile(profile: Profile): Promise<Profile> {
     await this.sql`
-      insert into profiles (handle, name, bio, link, user_id)
-      values (${profile.handle}, ${profile.name}, ${profile.bio ?? null}, ${profile.link ?? null},
+      insert into profiles (handle, name, bio, links, user_id)
+      values (${profile.handle}, ${profile.name}, ${profile.bio ?? null}, ${profile.links ?? []},
               ${profile.userId ?? null})
       on conflict (handle) do update set
         name = excluded.name,
         bio = excluded.bio,
-        link = excluded.link,
+        links = excluded.links,
         user_id = coalesce(excluded.user_id, profiles.user_id)
     `
     return profile
+  }
+
+  async renameAuthor(handle: string, name: string) {
+    await this.sql`
+      update lists set doc = jsonb_set(doc, '{author,name}', to_jsonb(${name}::text))
+      where handle = ${handle}
+    `
   }
 
   async getList(handle: string, slug: string) {

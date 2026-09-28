@@ -15,6 +15,9 @@ create table if not exists profiles (
 
 -- Idempotent for databases created before sign-in existed.
 alter table profiles add column if not exists user_id text unique;
+-- `link` became `links` (at most two). The old column is copied across and left in place.
+alter table profiles add column if not exists links text[] not null default '{}';
+update profiles set links = array[link] where link is not null and links = '{}';
 
 create table if not exists lists (
   id          text not null,

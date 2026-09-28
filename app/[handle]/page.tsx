@@ -38,23 +38,30 @@ export default async function ProfilePage({ params }: PageProps<"/[handle]">) {
           <h1 className="text-2xl font-medium tracking-tight">{profile.name}</h1>
           <p className="mt-1 text-(--muted)">@{profile.handle}</p>
           {profile.bio && <p className="mt-3 text-balance">{profile.bio}</p>}
-          {profile.link && (
-            <p className="mt-2 text-[0.9375rem]">
-              <a
-                href={profile.link}
-                rel="noopener noreferrer nofollow"
-                target="_blank"
-                className="text-(--muted) underline underline-offset-4 hover:text-(--fg)"
-              >
-                {profile.link.replace(/^https?:\/\/(www\.)?/, "")}
-              </a>
+          {profile.links?.length ? (
+            <p className="mt-2 flex flex-wrap gap-x-4 text-[0.9375rem]">
+              {profile.links.map((link) => (
+                <a
+                  key={link}
+                  href={link}
+                  rel="noopener noreferrer nofollow me"
+                  target="_blank"
+                  className="text-(--muted) underline underline-offset-4 hover:text-(--fg)"
+                >
+                  {link.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                </a>
+              ))}
             </p>
-          )}
+          ) : null}
         </header>
 
         {own && (
           <p className="mt-6 flex flex-wrap items-baseline gap-x-1 text-[0.8125rem] text-(--muted)">
             <span>This is you</span>
+            <span aria-hidden="true"> · </span>
+            <Link href="/settings" className="hover:text-(--fg)">
+              Edit profile
+            </Link>
             <span aria-hidden="true"> · </span>
             <Link href="/new" className="hover:text-(--fg)">
               Make a list

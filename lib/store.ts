@@ -4,8 +4,8 @@ export type Profile = {
   handle: string
   name: string
   bio?: string
-  /** Where the author sends people: one link, no link farm. */
-  link?: string
+  /** Where the author sends people: one or two links, no link farm. */
+  links?: string[]
   /** The signed-in account that owns this handle. Absent for seeded authors. */
   userId?: string
 }
@@ -35,6 +35,8 @@ export interface Store {
   /** The handle a signed-in account has claimed, if any. */
   getProfileByUser(userId: string): Promise<Profile | null>
   saveProfile(profile: Profile): Promise<Profile>
+  /** A renamed author is renamed on every list they have written. */
+  renameAuthor(handle: string, name: string): Promise<void>
   getList(handle: string, slug: string): Promise<StoredList | null>
   getListByShort(code: string): Promise<StoredList | null>
   /** Unlisted lists are included only for the author's own view. */
