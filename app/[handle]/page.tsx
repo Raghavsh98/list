@@ -7,7 +7,14 @@ export async function generateMetadata({ params }: PageProps<"/[handle]">): Prom
   const { handle } = await params
   const lists = await getListsByHandle(handle)
   const name = lists[0]?.doc.author.name ?? `@${handle}`
-  return { title: name, description: `Lists by ${name}` }
+  const description = `Lists by ${name}`
+  return {
+    title: name,
+    description,
+    alternates: { canonical: `/${handle}` },
+    openGraph: { type: "profile", url: `/${handle}`, title: name, description, siteName: "List" },
+    twitter: { card: "summary", title: name, description },
+  }
 }
 
 export default async function ProfilePage({ params }: PageProps<"/[handle]">) {

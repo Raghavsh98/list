@@ -200,6 +200,9 @@
 
 .list-item:has(input:checked) .list-thing {
   color: var(--list-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--list-muted) 60%, transparent);
 }
 
 .list-item:has(input:checked) .list-thing a {

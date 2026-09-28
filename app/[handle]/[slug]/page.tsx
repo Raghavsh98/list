@@ -13,9 +13,23 @@ export async function generateMetadata({ params }: PageProps<"/[handle]/[slug]">
   const { handle, slug } = await params
   const doc = await getList(handle, slug)
   if (!doc) return {}
+  const description = doc.subtitle ?? `A list by ${doc.author.name ?? handle}`
+  const url = `/${handle}/${slug}`
   return {
     title: doc.title,
-    description: doc.subtitle ?? `A list by ${doc.author.name ?? handle}`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      title: doc.title,
+      description,
+      siteName: "List",
+      authors: [doc.author.name ?? `@${handle}`],
+      publishedTime: doc.createdAt,
+      modifiedTime: doc.updatedAt,
+    },
+    twitter: { card: "summary_large_image", title: doc.title, description },
   }
 }
 

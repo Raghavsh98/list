@@ -22,9 +22,14 @@ const mono = Geist_Mono({
   display: "swap",
 })
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: "List", template: "%s — List" },
   description: "Make a list. Mean it. Pass it on.",
+  openGraph: { type: "website", siteName: "List", title: "List", description: "Make a list. Mean it. Pass it on." },
+  twitter: { card: "summary_large_image" },
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
